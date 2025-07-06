@@ -1,57 +1,132 @@
 # E-Commerce Backend API Documentation
 
-This Django REST Framework project provides backend APIs for an e-commerce platform, supporting order management for buyers and sellers.
+This Django REST Framework project provides backend APIs for an e-commerce platform, supporting user management, product management, and order management for buyers and sellers.
 
 ---
 
-## Features
+## Table of Contents
 
-- **Order Listing & Creation**
-  - Buyers: View and create their own orders.
-  - Sellers: View orders containing their products.
-
-- **Order Detail & Update**
-  - Buyers and sellers can view order details.
-  - Buyers can update their orders.
-
-- **Order Cancellation**
-  - Only buyers can cancel their orders (if not shipped or delivered).
-  - Cancelling an order restores product stock.
-
-- **Order Filtering**
-  - Orders can be filtered by status.
-
-- **Order Statistics**
-  - Buyers: See total orders, pending, confirmed, shipped, delivered, cancelled, and total spent.
-  - Sellers: See total orders received, pending, confirmed, shipped, delivered, and total revenue.
+- [Authentication & Users](#authentication--users)
+- [Products](#products)
+- [Orders](#orders)
+- [Permissions](#permissions)
+- [Example requirements.txt](#example-requirementstxt)
+- [Usage](#usage)
+- [Notes](#notes)
 
 ---
 
-## API Endpoints
+## Authentication & Users
 
-### 1. List & Create Orders
-- `GET /orders/` — List orders for the current user.
-- `POST /orders/` — Create a new order (buyers only).
+### Register
+- **POST `/api/users/register/`**
+- Request:
+  ```json
+  {
+    "username": "user1",
+    "email": "user1@example.com",
+    "password": "yourpassword",
+    "user_type": "buyer" // or "seller"
+  }
+  ```
+- Response:  
+  `201 Created` with user info.
 
-### 2. Order Detail & Update
-- `GET /orders/{id}/` — Retrieve order details.
-- `PUT/PATCH /orders/{id}/` — Update an order (buyers only).
+### Login
+- **POST `/api/users/login/`**
+- Request:
+  ```json
+  {
+    "username": "user1",
+    "password": "yourpassword"
+  }
+  ```
+- Response:  
+  Returns authentication token.
 
-### 3. Cancel Order
-- `POST /orders/{order_id}/cancel/` — Cancel an order (buyers only).
+### User Profile
+- **GET `/api/users/me/`**
+- Response:  
+  Returns current user's profile.
 
-### 4. My Orders (with filtering)
-- `GET /orders/my-orders/` — List current user's orders, filterable by status.
+### Update Profile
+- **PUT/PATCH `/api/users/me/`**
+- Request:  
+  Update fields as needed.
 
-### 5. Order Statistics
-- `GET /orders/statistics/` — Get order statistics for the current user.
+---
+
+## Products
+
+### List Products
+- **GET `/api/products/`**
+- Query params: `search`, `category`, etc.
+- Response:  
+  List of products.
+
+### Retrieve Product
+- **GET `/api/products/{id}/`**
+- Response:  
+  Product details.
+
+### Create Product (Sellers only)
+- **POST `/api/products/`**
+- Request:
+  ```json
+  {
+    "name": "Product Name",
+    "description": "Details",
+    "price": 100.0,
+    "stock": 10,
+    "category": "Category Name"
+  }
+  ```
+- Response:  
+  Created product.
+
+### Update Product (Sellers only)
+- **PUT/PATCH `/api/products/{id}/`**
+
+### Delete Product (Sellers only)
+- **DELETE `/api/products/{id}/`**
+
+---
+
+## Orders
+
+### List & Create Orders
+- **GET `/api/orders/`** — List orders for the current user.
+- **POST `/api/orders/`** — Create a new order (buyers only).
+  - Request:
+    ```json
+    {
+      "items": [
+        {"product": 1, "quantity": 2},
+        {"product": 3, "quantity": 1}
+      ]
+    }
+    ```
+
+### Order Detail & Update
+- **GET `/api/orders/{id}/`** — Retrieve order details.
+- **PUT/PATCH `/api/orders/{id}/`** — Update an order (buyers only).
+
+### Cancel Order
+- **POST `/api/orders/{order_id}/cancel/`** — Cancel an order (buyers only).
+
+### My Orders (with filtering)
+- **GET `/api/orders/my-orders/?status=pending`** — List current user's orders, filterable by status.
+
+### Order Statistics
+- **GET `/api/orders/statistics/`** — Get order statistics for the current user.
 
 ---
 
 ## Permissions
 
-- **Buyers:** Can create, view, update, and cancel their own orders.
-- **Sellers:** Can view orders containing their products.
+- **Buyers:** Can register, login, view/update their profile, create/view/update/cancel their own orders.
+- **Sellers:** Can register, login, view/update their profile, create/view/update/delete their own products, view orders containing their products.
+- **All endpoints require authentication unless for registration/login.**
 
 ---
 
@@ -60,6 +135,7 @@ This Django REST Framework project provides backend APIs for an e-commerce platf
 ```
 Django>=3.2
 djangorestframework
+djangorestframework-simplejwt
 ```
 
 ---
@@ -83,7 +159,6 @@ djangorestframework
 
 ## Notes
 
-- All endpoints require authentication.
-- Use the `status` query parameter to filter orders by status (e.g., `/orders/my-orders/?status=shipped`).
-
----
+- All endpoints (except registration and login) require authentication (e.g., JWT or Token).
+- Use the `status` query parameter to filter orders by status (e.g., `/api/orders/my-orders/?status=shipped`).
+- Adjust endpoint URLs and request/response formats as per your actual implementation.
