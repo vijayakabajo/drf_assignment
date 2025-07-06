@@ -11,13 +11,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         fields = ('email', 'username', 'password', 'password_confirm', 
                  'user_type', 'phone', 'address')
     
-    def validate(self, attrs):
+    def validate(self, attrs):    #if pw did'nt match
         if attrs['password'] != attrs['password_confirm']:
             raise serializers.ValidationError("Passwords don't match")
         return attrs
     
     def create(self, validated_data):
-        validated_data.pop('password_confirm')
+        validated_data.pop('password_confirm')  #removed pw confirm
         user = User.objects.create_user(
             email=validated_data['email'],
             username=validated_data['username'],
@@ -33,4 +33,4 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'email', 'username', 'user_type', 'phone', 
                  'address', 'created_at')
-        read_only_fields = ('id', 'created_at')
+        read_only_fields = ('id', 'created_at') #for security reasons

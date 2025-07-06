@@ -1,6 +1,4 @@
 from django.shortcuts import render
-
-# Create your views here.
 from rest_framework import status, generics
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -21,7 +19,8 @@ class RegisterView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
                
-        refresh = RefreshToken.for_user(user)  #generate tokens
+        refresh = RefreshToken.for_user(user)    # for quick login
+        # print("refresh_token:", refresh)
         return Response({
             'message': 'User created successfully',
             'user': UserSerializer(user).data,
@@ -36,16 +35,14 @@ class RegisterView(generics.CreateAPIView):
 def login(request):
     email = request.data.get('email')
     password = request.data.get('password')
-    
     if not email or not password:
         return Response({
             'error': 'Email and password required'
         }, status=status.HTTP_400_BAD_REQUEST)
     
-    user = authenticate(username=email, password=password)
+    user = authenticate(username=email, password=password, is_active=True)
     # print(user)
-    
-    if user:
+    if user:    #if user, generate tokens
         refresh = RefreshToken.for_user(user)
         return Response({
             'message': 'Login successful',
@@ -55,7 +52,6 @@ def login(request):
                 'access': str(refresh.access_token),
             }
         })
-    
     return Response({
         'error': 'Invalid credentials'
     }, status=status.HTTP_401_UNAUTHORIZED)
@@ -64,12 +60,6 @@ def login(request):
 @permission_classes([AllowAny])
 def logout(request):
     return Response({"message": "Logout successful"}, status=status.HTTP_200_OK)
-    # try:
-    #     # refresh_token = request.data["refresh"]
-    #     # print(refresh_token)
-    #     # token = RefreshToken(refresh_token)
-    #     # token.blacklist()
-    # except Exception as e:
-    #     return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
+
 
     
