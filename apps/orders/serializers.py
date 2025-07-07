@@ -91,7 +91,7 @@ class OrderCreateSerializer(serializers.ModelSerializer):
 class OrderUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = ('status')
+        fields = ('status', 'shipping_address')    #buyer can update status/shipping address add more if u want
     
     def validate_status(self, value):
         if self.instance and self.instance.status == 'delivered':

@@ -11,7 +11,7 @@ from .serializers import OrderSerializer, OrderCreateSerializer, OrderUpdateSeri
 class OrderListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     
-    def get_queryset(self):
+    def get_queryset(self):   #get orders based on the user type
         user = self.request.user
         if user.user_type == 'buyer':
             # Buyers see only their orders
@@ -35,7 +35,7 @@ class OrderListCreateView(generics.ListCreateAPIView):
             raise permissions.PermissionDenied("Only buyers can create orders")
         serializer.save()
 
-class OrderDetailView(generics.RetrieveUpdateAPIView):
+class OrderDetailView(generics.RetrieveUpdateAPIView):   #get specific order or update/delete
     permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
@@ -54,50 +54,53 @@ class OrderDetailView(generics.RetrieveUpdateAPIView):
             return OrderUpdateSerializer
         return OrderSerializer
 
-@api_view(['POST'])
-@permission_classes([permissions.IsAuthenticated])
-def cancel_order(request, order_id):
-    try:
-        if request.user.user_type != 'buyer':
-            return Response(
-                {'error': 'Only buyers can cancel orders'}, 
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
-        order = Order.objects.get(id=order_id, buyer=request.user, is_active=True)
-        
-        if order.status in ['shipped', 'delivered']:
-            return Response(
-                {'error': 'Cannot cancel shipped or delivered orders'}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        if order.status == 'cancelled':
-            return Response(
-                {'error': 'Order already cancelled'}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        # Restore stock
-        for item in order.items.all():
-            product = item.product
-            product.stock += item.quantity
-            product.save()
-        
-        order.status = 'cancelled'
-        order.save()
-        
-        return Response({
-            'message': 'Order cancelled successfully',
-            'order': OrderSerializer(order).data
-        })
-        
-    except Order.DoesNotExist:
-        return Response(
-            {'error': 'Order not found'}, 
-            status=status.HTTP_404_NOT_FOUND
-        )
 
+# #####################cancel order##################
+# @api_view(['POST'])
+# @permission_classes([permissions.IsAuthenticated])
+# def cancel_order(request, order_id):
+#     try:
+#         if request.user.user_type != 'buyer':
+#             return Response(
+#                 {'error': 'Only buyers can cancel orders'}, 
+#                 status=status.HTTP_403_FORBIDDEN
+#             )
+        
+#         order = Order.objects.get(id=order_id, buyer=request.user, is_active=True)
+        
+#         if order.status in ['shipped', 'delivered']:
+#             return Response(
+#                 {'error': 'Cannot cancel shipped or delivered orders'}, 
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )
+        
+#         if order.status == 'cancelled':
+#             return Response(
+#                 {'error': 'Order already cancelled'}, 
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )
+        
+#         # Restore stock
+#         for item in order.items.all():
+#             product = item.product
+#             product.stock += item.quantity
+#             product.save()
+        
+#         order.status = 'cancelled'
+#         order.save()
+        
+#         return Response({
+#             'message': 'Order cancelled successfully',
+#             'order': OrderSerializer(order).data
+#         })
+        
+#     except Order.DoesNotExist:
+#         return Response(
+#             {'error': 'Order not found'}, 
+#             status=status.HTTP_404_NOT_FOUND
+#         )
+
+###################### my orders with filters ##################
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def my_orders(request):
@@ -115,11 +118,10 @@ def my_orders(request):
         orders = Order.objects.none()
     
     # Filter by status if provided
-    status_filter = request.query_params.get('status', None)
+    status_filter = request.query_params.get('status', None)    #?status=pending
     if status_filter:
         orders = orders.filter(status=status_filter)
     
-    # Order by latest first
     orders = orders.order_by('-created_at')
     
     serializer = OrderSerializer(orders, many=True)
@@ -128,37 +130,37 @@ def my_orders(request):
         'orders': serializer.data
     })
 
-@api_view(['GET'])
-@permission_classes([permissions.IsAuthenticated])
-def order_statistics(request):
-    """Get order statistics for the user"""
-    user = request.user
+# @api_view(['GET'])
+# @permission_classes([permissions.IsAuthenticated])
+# def order_statistics(request):
+#     """Get order statistics for the user"""
+#     user = request.user
     
-    if user.user_type == 'buyer':
-        orders = Order.objects.filter(buyer=user, is_active=True)
-        stats = {
-            'total_orders': orders.count(),
-            'pending_orders': orders.filter(status='pending').count(),
-            'confirmed_orders': orders.filter(status='confirmed').count(),
-            'shipped_orders': orders.filter(status='shipped').count(),
-            'delivered_orders': orders.filter(status='delivered').count(),
-            'cancelled_orders': orders.filter(status='cancelled').count(),
-            'total_spent': sum(order.total_amount for order in orders if order.status != 'cancelled')
-        }
-    elif user.user_type == 'seller':
-        orders = Order.objects.filter(
-            items__product__seller=user,
-            is_active=True
-        ).distinct()
-        stats = {
-            'total_orders_received': orders.count(),
-            'pending_orders': orders.filter(status='pending').count(),
-            'confirmed_orders': orders.filter(status='confirmed').count(),
-            'shipped_orders': orders.filter(status='shipped').count(),
-            'delivered_orders': orders.filter(status='delivered').count(),
-            'total_revenue': sum(order.total_amount for order in orders if order.status != 'cancelled')
-        }
-    else:
-        stats = {}
+#     if user.user_type == 'buyer':
+#         orders = Order.objects.filter(buyer=user, is_active=True)
+#         stats = {
+#             'total_orders': orders.count(),
+#             'pending_orders': orders.filter(status='pending').count(),
+#             'confirmed_orders': orders.filter(status='confirmed').count(),
+#             'shipped_orders': orders.filter(status='shipped').count(),
+#             'delivered_orders': orders.filter(status='delivered').count(),
+#             'cancelled_orders': orders.filter(status='cancelled').count(),
+#             'total_spent': sum(order.total_amount for order in orders if order.status != 'cancelled')
+#         }
+#     elif user.user_type == 'seller':
+#         orders = Order.objects.filter(
+#             items__product__seller=user,
+#             is_active=True
+#         ).distinct()
+#         stats = {
+#             'total_orders_received': orders.count(),
+#             'pending_orders': orders.filter(status='pending').count(),
+#             'confirmed_orders': orders.filter(status='confirmed').count(),
+#             'shipped_orders': orders.filter(status='shipped').count(),
+#             'delivered_orders': orders.filter(status='delivered').count(),
+#             'total_revenue': sum(order.total_amount for order in orders if order.status != 'cancelled')
+#         }
+#     else:
+#         stats = {}
     
-    return Response(stats)
+#     return Response(stats)
