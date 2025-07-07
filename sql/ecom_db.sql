@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 06, 2025 at 10:25 PM
+-- Generation Time: Jul 07, 2025 at 02:22 PM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- PHP Version: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -214,6 +214,14 @@ CREATE TABLE `orders_order` (
   `buyer_id` char(32) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `orders_order`
+--
+
+INSERT INTO `orders_order` (`id`, `status`, `total_amount`, `shipping_address`, `created_at`, `updated_at`, `is_active`, `buyer_id`) VALUES
+(2, 'pending', 139998.00, '456 updated address 2', '2025-07-07 07:57:53.031855', '2025-07-07 09:53:28.841221', 1, 'c4b84bb2f11149e4bf3436541601318a'),
+(3, 'pending', 209997.00, '123 ranchi jharkhand', '2025-07-07 09:16:05.523423', '2025-07-07 09:16:05.536066', 1, 'c4b84bb2f11149e4bf3436541601318a');
+
 -- --------------------------------------------------------
 
 --
@@ -229,6 +237,14 @@ CREATE TABLE `orders_orderitem` (
   `order_id` int(11) NOT NULL,
   `product_id` char(32) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `orders_orderitem`
+--
+
+INSERT INTO `orders_orderitem` (`id`, `quantity`, `price`, `created_at`, `is_active`, `order_id`, `product_id`) VALUES
+(1, 2, 69999.00, '2025-07-07 07:57:53.034855', 1, 2, '5901bb0a434f454c9633a813a3aae1e5'),
+(2, 3, 69999.00, '2025-07-07 09:16:05.529416', 1, 3, '5901bb0a434f454c9633a813a3aae1e5');
 
 -- --------------------------------------------------------
 
@@ -255,7 +271,7 @@ CREATE TABLE `product_product` (
 
 INSERT INTO `product_product` (`id`, `created_at`, `updated_at`, `is_active`, `name`, `description`, `price`, `stock`, `category`, `seller_id`) VALUES
 ('17ee8b16c2444b479462230b43125527', '2025-07-05 02:27:02.478973', '2025-07-05 02:27:02.478973', 1, 'Test Product', 'This is a test product', 99.99, 10, 'Electronics', 'e6fb223fbd994ecab8c467e7cf7a6485'),
-('5901bb0a434f454c9633a813a3aae1e5', '2025-07-06 18:54:02.873697', '2025-07-06 18:54:02.873697', 1, 'Samsung123', 'Android', 69999.00, 15, 'Mobile', 'e6fb223fbd994ecab8c467e7cf7a6485'),
+('5901bb0a434f454c9633a813a3aae1e5', '2025-07-06 18:54:02.873697', '2025-07-07 09:16:05.530415', 1, 'Samsung123', 'Android', 69999.00, 10, 'Mobile', 'e6fb223fbd994ecab8c467e7cf7a6485'),
 ('f5ddae2b11bd41f0ab141ac4bf41aee3', '2025-07-05 02:56:40.826313', '2025-07-05 02:56:40.826313', 1, 'Test Product 2', 'This is a test product', 500.00, 50, 'Food', 'e6fb223fbd994ecab8c467e7cf7a6485');
 
 -- --------------------------------------------------------
@@ -293,6 +309,7 @@ INSERT INTO `users_user` (`password`, `last_login`, `is_superuser`, `username`, 
 ('pbkdf2_sha256$600000$eDBBplttv6aiMALompYiZM$5ZrI2Pd37hDBi6jn2AXaSvYtAmwC4nRAELmIF0/OWkg=', NULL, 0, 'seller0', '', '', 0, 1, '2025-07-06 14:54:53.223744', '925186a04ab045f3af4e1c9a5a3ca7d5', '2025-07-06 14:54:53.436219', '2025-07-06 14:54:53.436219', 'selle2@gmail.com', 'seller', '', ''),
 ('pbkdf2_sha256$600000$D0vr9z6EJIuqoxWvTshiUN$1w538xskrsNnYb2Zw3Kx2S1OkxJSnZBJagYg72j3GtA=', NULL, 0, 'seller2', '', '', 0, 1, '2025-07-06 14:53:56.907022', '9e6a677f52c74c11bf10414158e1472e', '2025-07-06 14:53:57.166011', '2025-07-06 14:53:57.166011', 'seller2@gmail.com', 'seller', '', ''),
 ('pbkdf2_sha256$600000$mRciLDLNdwpf8qs2WVYghh$CV/tWzfrQwj47slCmHFTsefEI/1MB2Kli4NRbgyvBl8=', NULL, 0, 'testuser', '', '', 0, 1, '2025-07-04 04:08:27.628007', 'bcd873b9070b4b44b1e98bf0853e2f98', '2025-07-04 04:08:28.121008', '2025-07-04 04:08:28.121008', 'test@example.com', 'buyer', '', ''),
+('pbkdf2_sha256$600000$Ypo2ZViGukq2bm9eOzt9Wv$R7Kgxx2jQCqY+bl//QSj/1rX/cEknCxUqBd3ojEZudA=', NULL, 0, 'buyer111', '', '', 0, 1, '2025-07-07 07:39:18.855783', 'c4b84bb2f11149e4bf3436541601318a', '2025-07-07 07:39:21.371778', '2025-07-07 07:39:21.371778', 'buyer111@gmail.com', 'buyer', '', ''),
 ('pbkdf2_sha256$600000$iuiB3zJYTs4D7ohbn23gFY$GI1J8LDex2+h8u80N46kl6t5/6p3SqxiNAmrV+ztCdg=', NULL, 0, 'seller1', '', '', 0, 1, '2025-07-05 02:16:33.054332', 'e6fb223fbd994ecab8c467e7cf7a6485', '2025-07-05 02:16:33.665212', '2025-07-05 02:16:33.665212', 'seller@gmail.com', 'seller', '', ''),
 ('pbkdf2_sha256$600000$9wsiVdt7JdZkjPx9tcRk3a$blBQ93YvKE24DfXnUCb+IYWgjlQREHa0U08twgjT5tY=', NULL, 0, 'buyer88', '', '', 0, 1, '2025-07-06 14:56:59.777483', 'f5cffe26abc14bb1876e0fc98f681988', '2025-07-06 14:56:59.988468', '2025-07-06 14:56:59.988468', 'buyer88@gmail.com', 'buyer', '', '');
 
@@ -464,13 +481,13 @@ ALTER TABLE `django_migrations`
 -- AUTO_INCREMENT for table `orders_order`
 --
 ALTER TABLE `orders_order`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `orders_orderitem`
 --
 ALTER TABLE `orders_orderitem`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `users_user_groups`
