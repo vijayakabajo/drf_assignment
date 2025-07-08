@@ -45,6 +45,7 @@ THIRD_PARTY_APPS = [
     'rest_framework_simplejwt',
     'django_filters',
     'corsheaders',
+    'ratelimit',
 ]
 
 LOCAL_APPS = [
@@ -166,3 +167,9 @@ CORS_ALLOWED_ORIGINS = [
 
 # AES Encryption
 AES_KEY = config('AES_KEY').encode()
+
+#Rate Limiting
+RATELIMIT_CACHE_BACKEND = 'django.core.cache.backends.locmem.LocMemCache'    #can also use redis or memcached
+RATELIMIT_CACHE_TIMEOUT = 60  #cache will expire after 1 minute
+RATELIMIT_ENABLE = True
+RATELIMIT_CACHE_RATE = '100/m'  # 100 requests per minute

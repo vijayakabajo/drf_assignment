@@ -1,6 +1,6 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, ratelimit
 from .models import Product
 from .serializers import ProductSerializer, ProductCreateSerializer
 from .permissions import IsSellerOrReadOnly, IsOwnerOrReadOnly
@@ -8,6 +8,7 @@ from .permissions import IsSellerOrReadOnly, IsOwnerOrReadOnly
 
 class ProductListCreateView(generics.ListCreateAPIView):
     queryset = Product.objects.filter(is_active=True)
+    @ratelimit(key='user', rate= '50/m', method='POST', block=True)
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return ProductCreateSerializer

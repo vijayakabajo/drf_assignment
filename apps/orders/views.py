@@ -3,13 +3,14 @@ from django.shortcuts import render
 # Create your views here.
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, ratelimit
 from django.db.models import Q
 from .models import Order, OrderItem
 from .serializers import OrderSerializer, OrderCreateSerializer, OrderUpdateSerializer
 
 class OrderListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
+    @ratelimit(key='user', rate= '100/m', method = 'POST', block = True)
     
     def get_queryset(self):   #get orders based on the user type
         user = self.request.user
