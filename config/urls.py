@@ -16,8 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.http import HttpResponse
 
 urlpatterns = [
+    path('', lambda request: HttpResponse('<center><b><a href="https://github.com/vijayakabajo/drf_assignment">DRF assignment by vijayakabajo</a></b></center>')),
     path('admin/', admin.site.urls),
     path('api/users/', include('apps.users.urls')),
     path('api/products/', include('apps.product.urls')),
